@@ -1,9 +1,3 @@
-# data_map.py
-
-# File path for the raw data
-DATA_RAW_PATH = "./data/raw.csv"
-DATA_PATH = "./data/data.csv"
-
 # Row need to skip when reading raw data
 SKIP_ROWS = 24
 
