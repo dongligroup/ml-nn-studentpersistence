@@ -1,0 +1,100 @@
+{
+  "METADATA": {
+    "independent_variables": [
+      "first_term_gpa",
+      "second_term_gpa",
+      "first_language",
+      "funding",
+      "school",
+      "fast_track",
+      "coop",
+      "residency",
+      "gender",
+      "previous_education",
+      "age_group",
+      "high_school_average_mark",
+      "math_score",
+      "english_grade"
+    ],
+    "dependent_variable": "first_year_persistence"
+  },
+  "VALUE_MAPPINGS": {
+    "first_language": {
+      "1": "English",
+      "2": "French",
+      "3": "Other"
+    },
+    "funding": {
+      "1": "Apprentice_PS",
+      "2": "GPOG_FT",
+      "3": "Intl Offshore",
+      "4": "Intl Regular",
+      "5": "Intl Transfer",
+      "6": "Joint Program Ryerson",
+      "7": "Joint Program UTSC",
+      "8": "Second Career Program",
+      "9": "Work Safety Insurance Board"
+    },
+    "school": {
+      "1": "Advancement",
+      "2": "Business",
+      "3": "Communications",
+      "4": "Community and Health",
+      "5": "Hospitality",
+      "6": "Engineering",
+      "7": "Transportation"
+    },
+    "fast_track": {
+      "1": "Yes",
+      "2": "No"
+    },
+    "coop": {
+      "1": "Yes",
+      "2": "No"
+    },
+    "residency": {
+      "1": "Domestic",
+      "2": "International"
+    },
+    "gender": {
+      "1": "Female",
+      "2": "Male",
+      "3": "Neutral"
+    },
+    "previous_education": {
+      "1": "HighSchool",
+      "2": "PostSecondary"
+    },
+    "age_group": {
+      "1": "0 to 18",
+      "2": "19 to 20",
+      "3": "21 to 25",
+      "4": "26 to 30",
+      "5": "31 to 35",
+      "6": "36 to 40",
+      "7": "41 to 50",
+      "8": "51 to 60",
+      "9": "61 to 65",
+      "10": "66+"
+    },
+    "english_grade": {
+      "1": "Level-130",
+      "2": "Level-131",
+      "3": "Level-140",
+      "4": "Level-141",
+      "5": "Level-150",
+      "6": "Level-151",
+      "7": "Level-160",
+      "8": "Level-161",
+      "9": "Level-170",
+      "10": "Level-171",
+      "11": "Level-180"
+    }
+  },
+  "NUMERIC_RANGES": {
+    "first_term_gpa": [0.0, 4.5],
+    "second_term_gpa": [0.0, 4.5],
+    "high_school_average_mark": [0.0, 100.0],
+    "math_score": [0.0, 50.0]
+  }
+}
