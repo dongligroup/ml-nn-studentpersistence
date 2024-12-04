@@ -18,12 +18,28 @@ class Model:
         self.num_std = np.array([1.17156264, 1.19396015, 10.67027785, 9.64125973])
         self.n_cat = [3, 9, 7, 2, 2, 2, 3, 2, 10, 11]
 
-    def predict(self, student):
-        line = student.to_line()
+
+    def predict_one(self, student):
+        # Validate the student object
+        validation_errors = student.validate()
+        if validation_errors:
+            raise ValueError(f"Student validation failed: {', '.join(validation_errors)}")
+        try:
+            line = student.to_line()
+            prediction = self.__predict_line(line)
+            return prediction.numpy()[0]
+        except Exception as e:
+            # Handle unexpected errors
+            raise RuntimeError(f"An error occurred during prediction: {str(e)}")        
+
+    @tf.function
+    def __predict_line(self, line):
         features, _ = self.__process_line(line)
         features = tf.reshape(features, (1, -1))
-        persistence = self.model.predict(features)
-        return persistence
+        probabilities = self.model(features)
+        prediction = tf.argmax(probabilities, axis=1)
+        prediction = tf.equal(prediction, 1)
+        return prediction
 
     def __process_line(self, line):
         fields = tf.io.decode_csv(line, record_defaults=self.column_defaults)
@@ -55,7 +71,10 @@ class Student:
     # Load mappings during class initialization
     with open(MAP_PATH, "r") as file:
         metadata = json.load(file)
-        value_mappings = metadata["VALUE_MAPPINGS"]
+        value_mappings = {
+                key: {int(k): v for k, v in mapping.items()}
+                for key, mapping in metadata["VALUE_MAPPINGS"].items()
+            }
         numeric_ranges = metadata["NUMERIC_RANGES"]
 
     def __init__(self, first_term_gpa, second_term_gpa, first_language, funding, school, fast_track, 
@@ -104,15 +123,12 @@ class Student:
         """
         Validates the student attributes against the provided mappings and numeric ranges.
         """
-
         errors = []
-
         # Validate categorical values
         for field, mappings in Student.value_mappings.items():
             value = getattr(self, field, None)
             if value not in mappings.keys():
                 errors.append(f"{field} value '{value}' is not valid.")
-
         # Validate numeric ranges
         for field, (min_val, max_val) in Student.numeric_ranges.items():
             value = getattr(self, field, None)
@@ -147,7 +163,7 @@ class Student:
 if __name__ == "__main__": 
     student = Student(2.125,2.136364,1.0,2.0,6.0,2.0,1.0,1.0,2.0,1.0,2.0,73.0,18.0,7.0)
     model = Model()
-    prediction = model.predict(student)
+    prediction = model.predict_one(student)
     print(prediction)
 
 
