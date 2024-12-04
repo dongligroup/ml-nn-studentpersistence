@@ -8,6 +8,7 @@ from tensorflow.keras.models import load_model
 ON_PRODUCTION = False
 MODEL_DEV = "./model/base_model_dev.keras"
 MODEL_PRO = "./model/base_model.keras"
+DATA_PATH = "./data/data.csv"
 
 def get_default_model():
     '''
@@ -18,12 +19,19 @@ def get_default_model():
     model_path = os.path.join(bas_dir, model_current)
     return model_path
 
-class Model:
-    model_active = get_default_model()
+def get_data_file(file=DATA_PATH):
+    '''
+    Return the path of the data file (data.csv)
+    '''
+    bas_dir = os.path.dirname(os.path.abspath(__file__))
+    data_path = os.path.join(bas_dir, file)
+    return data_path
 
+class Model:
     def __init__(self, model_path=None):
         self.model_path = self.__validate_path(model_path)
         self.model = load_model(self.model_path)
+        self.data_path = get_data_file()
         self.column_defaults = [
             tf.constant([0.0], dtype=tf.float32) for _ in range(15)]
         self.num_inx = [0, 1, 11, 12]
@@ -62,6 +70,33 @@ class Model:
             print('One instance is trained successfully.')
         except Exception as e:
             raise RuntimeError(f"An error occurred during train: {str(e)}") 
+
+    def train_batch(self, new_csv_path):
+        try:
+            csv_path = get_data_file(new_csv_path)
+            dataset = self.__process_csv(csv_path)
+        except Exception as e:
+            raise RuntimeError(f"Failed to process the file at {new_csv_path}: {str(e)}")
+        try:
+            history = self.model.fit(dataset, epochs=1, verbose=0)
+        except Exception as e:
+            raise RuntimeError(f"Failed to train the model: {str(e)}")
+        
+        return history.history['accuracy'], history.history['loss']
+
+    def __process_csv(self, file_paths, n_readers=5, n_read_threads=tf.data.AUTOTUNE,
+                        shuffle_buffer_size=1500, batch_size=32):
+        dataset = tf.data.Dataset.list_files(file_paths)
+        dataset = dataset.interleave(   # use interleave to read data
+            lambda filepath: tf.data.TextLineDataset(filepath).skip(1), # skip header
+            cycle_length=n_readers, # num of elements to read parallelly
+            num_parallel_calls=n_read_threads)  # num of threads
+        # shuffle, preprocess, batch, and prefetch
+        dataset = dataset.shuffle(shuffle_buffer_size) \
+            .map(self.__process_line, num_parallel_calls=n_read_threads) \
+            .batch(batch_size) \
+            .prefetch(tf.data.AUTOTUNE)
+        return dataset
 
     @tf.function
     def __predict_line(self, line):
@@ -212,11 +247,19 @@ class Student:
         )
     
 if __name__ == "__main__": 
-    student = Student(2.125,2.136364,1.0,2.0,6.0,2.0,1.0,1.0,2.0,1.0,2.0,73.0,18.0,7.0,1.0)
-    model = Model()
+    # student = Student(2.125,2.136364,1.0,2.0,6.0,2.0,1.0,1.0,2.0,1.0,2.0,73.0,18.0,7.0,1.0)
+    # model = Model()
+    # model.train_one(student)
+
+    # student = Student(2.125,2.136364,1.0,2.0,6.0,2.0,1.0,1.0,2.0,1.0,2.0,73.0,18.0,7.0)
+    # model = Model()
     # prediction = model.predict_one(student)
     # print(prediction)
-    model.train_one(student)
+
+    csv_file = './data/data_uploaded.csv'
+    model = Model()
+    acc, loss = model.train_batch(csv_file)
+    print(acc, loss)
 
     
 
