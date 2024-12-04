@@ -4,12 +4,26 @@ import numpy as np
 import tensorflow as tf 
 from tensorflow.keras.models import load_model
 
-class Model:
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # Directory of the script
-    BASE_MODEL = os.path.join(BASE_DIR, "./model/base_model.keras")
+# Switch for production and develop mode
+ON_PRODUCTION = False
+MODEL_DEV = "./model/base_model_dev.keras"
+MODEL_PRO = "./model/base_model.keras"
 
-    def __init__(self,model_path=BASE_MODEL):
-        self.model = load_model(filepath=model_path)
+def get_default_model():
+    '''
+    Return the current model dynamically based on the development stage
+    '''
+    model_current = MODEL_PRO if ON_PRODUCTION else MODEL_DEV
+    bas_dir = os.path.dirname(os.path.abspath(__file__))
+    model_path = os.path.join(bas_dir, model_current)
+    return model_path
+
+class Model:
+    model_active = get_default_model()
+
+    def __init__(self, model_path=None):
+        self.model_path = self.__validate_path(model_path)
+        self.model = load_model(self.model_path)
         self.column_defaults = [
             tf.constant([0.0], dtype=tf.float32) for _ in range(15)]
         self.num_inx = [0, 1, 11, 12]
@@ -18,9 +32,11 @@ class Model:
         self.num_std = np.array([1.17156264, 1.19396015, 10.67027785, 9.64125973])
         self.n_cat = [3, 9, 7, 2, 2, 2, 3, 2, 10, 11]
 
-
     def predict_one(self, student):
+        if not student:
+            raise ValueError("Invalid student data provided.")
         # Validate the student object
+        student.first_year_persistence = 0
         validation_errors = student.validate()
         if validation_errors:
             raise ValueError(f"Student validation failed: {', '.join(validation_errors)}")
@@ -29,8 +45,23 @@ class Model:
             prediction = self.__predict_line(line)
             return prediction.numpy()[0]
         except Exception as e:
-            # Handle unexpected errors
             raise RuntimeError(f"An error occurred during prediction: {str(e)}")        
+
+    def train_one(self, student_labelled):
+        if not student_labelled:
+            raise ValueError("Invalid student data provided.")
+        if student.first_year_persistence == 'UKN':
+            raise ValueError("Label must be provided.")
+        validation_errors = student.validate()
+        if validation_errors:
+            raise ValueError(f"Student validation failed: {', '.join(validation_errors)}")
+        try:
+            line = student_labelled.to_line()
+            self.__train_line(line)
+            self.__save()
+            print('One instance is trained successfully.')
+        except Exception as e:
+            raise RuntimeError(f"An error occurred during train: {str(e)}") 
 
     @tf.function
     def __predict_line(self, line):
@@ -40,7 +71,15 @@ class Model:
         prediction = tf.argmax(probabilities, axis=1)
         prediction = tf.equal(prediction, 1)
         return prediction
+    
+    @tf.function
+    def __train_line(self, line):
+        x, y = self.__process_line(line)
+        x = tf.reshape(x, (1, -1))
+        y = tf.reshape(y, (1, -1))
+        self.model.fit(x, y, epochs=1, verbose=0)
 
+    @tf.function
     def __process_line(self, line):
         fields = tf.io.decode_csv(line, record_defaults=self.column_defaults)
         # normalize numerical data
@@ -63,6 +102,16 @@ class Model:
         y = fields[-1]
         return x, y
     
+    def __save(self):
+        self.model.save(self.model_path)
+
+    def __validate_path(self, model_path):
+        if model_path is None or model_path not in [MODEL_DEV, MODEL_PRO]:
+            default_path = get_default_model()
+            return default_path
+        else:
+            return model_path
+    
 class Student:
     # Get location of the metadata file
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # Directory of the script
@@ -79,7 +128,7 @@ class Student:
 
     def __init__(self, first_term_gpa, second_term_gpa, first_language, funding, school, fast_track, 
                  coop, residency, gender, previous_education, age_group, high_school_average_mark, 
-                 math_score, english_grade, first_year_persistence=0):
+                 math_score, english_grade, first_year_persistence='UKN'):
         # Attributes
         self.first_term_gpa = first_term_gpa
         self.second_term_gpa = second_term_gpa
@@ -134,6 +183,9 @@ class Student:
             value = getattr(self, field, None)
             if not (min_val <= value <= max_val):
                 errors.append(f"{field} value '{value}' is out of range [{min_val}, {max_val}].")
+        # Validate label if existed.
+        if self.first_year_persistence not in [0, 1]:
+            errors.append(f"First_year_persistence can only be 0 or 1 but got {self.first_year_persistence}.")
 
         return errors
 
@@ -159,13 +211,12 @@ class Student:
             english_grade=data.get("english_grade")
         )
     
-
 if __name__ == "__main__": 
-    student = Student(2.125,2.136364,1.0,2.0,6.0,2.0,1.0,1.0,2.0,1.0,2.0,73.0,18.0,7.0)
+    student = Student(2.125,2.136364,1.0,2.0,6.0,2.0,1.0,1.0,2.0,1.0,2.0,73.0,18.0,7.0,1.0)
     model = Model()
-    prediction = model.predict_one(student)
-    print(prediction)
-
+    # prediction = model.predict_one(student)
+    # print(prediction)
+    model.train_one(student)
 
     
 
