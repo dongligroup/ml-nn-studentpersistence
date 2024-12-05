@@ -4,6 +4,14 @@
 
 > to maintain a clean repository, direct `push` to `main` thread is no longer supported. Instead, simply create a [pull request](https://github.com/Dongli99/ml-nn-studentpersistence/pulls).Team members will review, comment, and merge it to main. check [workflow.md](./docs/workflow.md) for more details.
 
+## Run Website
+
+```bash
+python web/back/app.py
+cd web/front
+npm start
+```
+
 ## Functionality & Endpoints
 
 | Endpoint      | Method | Description                                           |
