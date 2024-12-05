@@ -51,7 +51,7 @@ class Model:
         try:
             line = student.to_line()
             prediction = self.__predict_line(line)
-            return prediction.numpy()[0]
+            return prediction.numpy()
         except Exception as e:
             raise RuntimeError(f"An error occurred during prediction: {str(e)}")        
 
@@ -103,8 +103,7 @@ class Model:
         features, _ = self.__process_line(line)
         features = tf.reshape(features, (1, -1))
         probabilities = self.model(features)
-        prediction = tf.argmax(probabilities, axis=1)
-        prediction = tf.equal(prediction, 1)
+        prediction = probabilities[0][1]
         return prediction
     
     @tf.function
@@ -219,7 +218,7 @@ class Student:
             if not (min_val <= value <= max_val):
                 errors.append(f"{field} value '{value}' is out of range [{min_val}, {max_val}].")
         # Validate label if existed.
-        if self.first_year_persistence not in [0, 1]:
+        if self.first_year_persistence not in [0, 1, 'UKN']:
             errors.append(f"First_year_persistence can only be 0 or 1 but got {self.first_year_persistence}.")
 
         return errors
@@ -229,29 +228,34 @@ class Student:
         """
         Creates a Student instance from a JSON dictionary.
         """
-        return Student(
-            first_term_gpa=data.get("first_term_gpa"),
-            second_term_gpa=data.get("second_term_gpa"),
-            first_language=data.get("first_language"),
-            funding=data.get("funding"),
-            school=data.get("school"),
-            fast_track=data.get("fast_track"),
-            coop=data.get("coop"),
-            residency=data.get("residency"),
-            gender=data.get("gender"),
-            previous_education=data.get("previous_education"),
-            age_group=data.get("age_group"),
-            high_school_average_mark=data.get("high_school_average_mark"),
-            math_score=data.get("math_score"),
-            english_grade=data.get("english_grade")
+        student = Student(
+            first_term_gpa=float(data.get("firstTermGpa", 0.0)),
+            second_term_gpa=float(data.get("secondTermGpa", 0.0)),
+            first_language=float(data.get("firstLanguage", 0.0)),
+            funding=float(data.get("funding", 0.0)),
+            school=float(data.get("school", 0.0)),
+            fast_track=float(data.get("fastTrack", 0.0)),
+            coop=float(data.get("coop", 0.0)),
+            residency=float(data.get("residency", 0.0)),
+            gender=float(data.get("gender", 0.0)),
+            previous_education=float(data.get("previousEducation", 0.0)),
+            age_group=float(data.get("ageGroup", 0.0)),
+            high_school_average_mark=float(data.get("highSchoolAverageMark", 0.0)),
+            math_score=float(data.get("mathScore", 0.0)),
+            english_grade=float(data.get("englishGrade", 0.0)),
         )
+        errors = student.validate()
+        if errors:
+            raise ValueError(f"Validation errors: {errors}")
+        return student
+
     
 if __name__ == "__main__": 
     # student = Student(2.125,2.136364,1.0,2.0,6.0,2.0,1.0,1.0,2.0,1.0,2.0,73.0,18.0,7.0,1.0)
     # model = Model()
     # model.train_one(student)
 
-    student = Student(2.125,2.136364,1.0,2.0,6.0,2.0,1.0,1.0,2.0,1.0,2.0,73.0,18.0,7.0)
+    student = Student(0.6,1.4,2,8,3,2,1,2,3,1,8,2.5,4,8)
     model = Model()
     prediction = model.predict_one(student)
     print(prediction)
