@@ -1,3 +1,76 @@
-**/*.ipynb_checkpoints/
-**/*.mp4
-**/*.zip
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.db
+*.sqlite
+*.egg
+*.egg-info
+dist/
+build/
+*.log
+*.pot
+*.mo
+*.swp
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+
+# Node.js
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+package-lock.json
+*.log
+
+# IDE and editor files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.iml
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Python virtual environment
+venv/
+env/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Docker files
+docker-compose.override.yml
+docker-compose.override.yaml
+Dockerfile*
+
+# Test reports
+nosetests.xml
+coverage.xml
+*.cover
+*.hypothesis/
+.pytest_cache/
+
+# PyCharm IDE files
+.idea/
+
+# JetBrains IDE files
+.idea/
+
+# macOS files
+*.dmg
+*.app
+
+# Windows files
+Thumbs.db
+
+# 2unix file
+2unix
+
+# Expermental files
+train/main-Copy1.ipynb
