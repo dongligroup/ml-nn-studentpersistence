@@ -251,15 +251,15 @@ if __name__ == "__main__":
     # model = Model()
     # model.train_one(student)
 
-    # student = Student(2.125,2.136364,1.0,2.0,6.0,2.0,1.0,1.0,2.0,1.0,2.0,73.0,18.0,7.0)
-    # model = Model()
-    # prediction = model.predict_one(student)
-    # print(prediction)
-
-    csv_file = './data/data_uploaded.csv'
+    student = Student(2.125,2.136364,1.0,2.0,6.0,2.0,1.0,1.0,2.0,1.0,2.0,73.0,18.0,7.0)
     model = Model()
-    acc, loss = model.train_batch(csv_file)
-    print(acc, loss)
+    prediction = model.predict_one(student)
+    print(prediction)
+
+    # csv_file = './data/data_uploaded.csv'
+    # model = Model()
+    # acc, loss = model.train_batch(csv_file)
+    # print(acc, loss)
 
     
 
