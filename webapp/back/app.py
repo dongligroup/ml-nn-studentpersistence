@@ -1,7 +1,9 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from core import Model, Student
 
 app = Flask(__name__)
+CORS(app)
 
 # Load the model (could be initialized once and reused)
 model = Model()
