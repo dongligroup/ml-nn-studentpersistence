@@ -48,7 +48,7 @@
   // Set document properties
   set document(title: title, author: authors.keys())
   set page(numbering: "1", number-align: center,paper: "us-letter")
-  set text(font: ( "New Computer Modern", "serif","STIX Two Text", "Times New Roman"), lang: "en")
+  set text(font: ( "New Computer Modern", "Times New Roman"), lang: "en")
   show footnote.entry: it => [
     #set par(hanging-indent: 0.7em)
     #it.note.numbering #it.note.body
@@ -56,7 +56,7 @@
 
   // Title block
   align(center)[
-    #block(text(font: "Palatino Linotype", size: 1.52em, weight: "bold", title))
+    #block(text(font: "Palatino Linotype", size: 1.52em, weight: "bold", smallcaps(title)))
   ]
 
   v(1em)
@@ -139,7 +139,7 @@
 
     block([
       #set par(first-line-indent: 0em, justify: true)
-      #align(center)[#heading([Abstract])]
+      #align(center)[#heading(smallcaps[Abstract])]
       #abstract
   
       #if keywords.len() > 0 {
@@ -155,7 +155,7 @@
 
   show heading.where(level: 1): it => block(above: 1.5em, below: 1.5em)[
     #set pad(bottom: 2em, top: 1em)
-    #it.body
+    #smallcaps(it.body)
   ]
 
   show: rest => columns(2, rest)
@@ -170,4 +170,6 @@
     show bibliography: set par(first-line-indent: 0em)
     bibliography(bib, title: [References], style: "ieee")
   }
+
+  
 }

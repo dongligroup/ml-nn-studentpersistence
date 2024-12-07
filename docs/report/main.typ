@@ -17,7 +17,7 @@
       )
     ),
     affiliations: (
-      "CC": "Progress Campus of Centennial College. 941 Progress Ave, Scarborough, ON M1G 3T8 CA"
+      "CC": "Engineering School of Centennial College. 941 Progress Ave, Scarborough, ON M1G 3T8 CA"
     ),
     abstract: [Accurately forecasting student success is crucial for improving retention and outcomes. This study predicts first-year persistence using Artificial Intelligence (AI) and Neural Networks (NN). A real-world dataset is processed to address challenges like missing values and class imbalance. The NN model, optimized with advanced techniques, outperforms traditional methods in predicting persistence. While the results show promise, the study also highlights challenges in model interpretability and generalization, suggesting areas for future exploration in AI-driven educational interventions.],
     keywords: ("Artificial Intelligence", "Neural Network", "Student Success", "Predictive Analytics"),
@@ -28,10 +28,9 @@
 
 Student success is a critical concern for educational institutions, influencing graduation rates, career outcomes, and societal contributions. However, predicting student success is complex, as factors such as socio-economic background, prior academic performance, and personal circumstances can significantly affect outcomes. Institutions face challenges in identifying students at risk of underperforming or dropping out, making it essential to develop methods for early intervention.
 
-Programs like the Helping Youth Pursue Education (HYPE)#cite(<armstrong2017>) initiative at Centennial College have demonstrated the importance of targeted support for students from underserved communities #cite(<maher2013>). HYPE’s focus on addressing barriers to post-secondary education for youth from disadvantaged backgrounds highlights the need for data-driven strategies to improve retention and success rates in higher education @armstrong2017.
+Programs like the Helping Youth Pursue Education (HYPE)#footnote([The HYPE program at Centennial College has given many young people new confidence to return to school by helping to overcome the economic and social barriers that may have interfered with school attendance in the past and by providing a nurturing, inclusive environment for youth aged 17-29, primarily living in the underserved neighbourhoods of Toronto.])#cite(<armstrong2017>)#cite(<hypecentennial>) initiative at Centennial College have demonstrated the importance of targeted support for students from underserved communities#cite(<maher2013>). HYPE’s focus on addressing barriers to post-secondary education for youth from disadvantaged backgrounds highlights the need for data-driven strategies to improve retention and success rates in higher education@armstrong2017.
 
 Artificial Intelligence (AI), particularly Neural Networks (NN), offers promising solutions in education. Neural networks can analyze large datasets, uncovering complex patterns that traditional methods may miss. This study uses AI to predict first-year persistence, a key indicator of student success, using a real-world dataset. The goal is to demonstrate how neural networks can improve prediction accuracy and provide insights for better supporting students, while addressing challenges such as missing data, class imbalance, and insufficient amount of data.
-
 
 = Methodology
 
@@ -178,3 +177,55 @@ This outcome reflects the model's excellent performance on unseen test data. In 
   image("../images/roc_auc.png")
 )<fig-roc-auc>
 
+== Predictive Website
+
+A full-stack website was built to utilize the model, featuring a Node.js frontend and Flask backend. The backend includes a simple `.csv` file as a database layer, used to append data during _online training_. While the website currently only supports prediction, the backend also developed to support two additional functionalities including train_one and train_batch.
+
+#figure(
+  grid(
+    rows: 3,
+    [#image("../images/predict.png")],
+    [#image("../images/train_one.png")],
+    [#image("../images/train_batch.png")],
+  ),
+  caption: [Diagrams showing the process of handling the 3 functionalities in backend. Multiple `@tf.function` was used to effectively handle the flow, matching the need of quick response. If the project have chance to be continued, _Tensorflow Serving_ can be used to manage the model versions.]
+)
+
+= Discussion
+
+== Effectiveness in Prediction
+
+The neural network model demonstrated impressive performance in predicting first-year student persistence, with an accuracy of 100% on the validation set and nearly perfect results on the test set. This aligns with the growing body of research suggesting that AI, particularly neural networks, can provide valuable insights into student success predictions, outperforming traditional statistical methods. 
+
+== Model Interpretability
+
+One of the key challenges highlighted by this study is the interpretability of neural network models. While the model provides high accuracy, understanding the specific factors driving its predictions remains complex. In educational settings, stakeholders such as instructors, counselors, and administrators may require more transparency in decision-making models. 
+
+== Class Imbalance
+
+Addressing class imbalance through upsampling proved to be effective in maintaining valuable data points, but it also raised questions about potential biases introduced by this technique. While upsampling prevented the loss of information, it might have artificially influenced the distribution of the data, potentially skewing the model's predictions.
+
+== Data Quality
+
+Although the missing values were handled gracefully with `IterativeImputer` to preserve relationships between features, the importance of completeness of data is still worth to be emphasized. Missing data is often a recurring issue in real-world datasets, and the choice of imputation technique significantly impacts model accuracy. To handle missing values, other imputation methods such as _k-nearest neighbors_ may have similar or better performance. The variance of the data source may also lead to a biased model, for example, all the instances of this dataset are from Engineering school. If the data is more variable, the model will have chance to learn better generalization skill.
+
+== Regularization
+
+The model's _early stopping_ and _dropout_ regularization techniques contributed to minimizing overfitting, which is a common challenge when working with small datasets. Despite the model's high accuracy on unseen test_set, there may still be concerns regarding its generalization to other datasets with different characteristics. Further research is needed to test the model’s robustness across a broader set of educational institutions and student demographics.
+
+== Model Complexity
+Since we did not penalize the model's complexity during the design phase, the neural network evolved into a relatively complex structure. Although it is not overfitting, such complexity may increase computational costs and reduce interpretability. Future work could involve applying regularization, simplifying the architecture, or exploring model pruning to balance performance, efficiency, and scalability.
+
+== Model Tuning
+
+Since the model achieved perfect performance without signs of _overfitting_ after optimizing the network architecture, further tuning techniques were not explored in this project. However, future studies could consider strategies such as hyperparameter optimization methods like _Grid Search_ and _Random Search_, applying regularization techniques like L1 and L2, and experimenting with diverse _units_, _activation_ functions, and _loss_ functions to enhance the model’s robustness and generalizability.
+
+== Broader Generalization
+
+Although the model shows excellent performance in this dataset, the effectiveness of applying the model to the broader use case, for example, other institutions or schools are uncertain. In that case, more evaluation should be performed, and more diverse data are probably required to further train the model. 
+
+= Conclusion
+
+The study reveals neural networks' powerful capability to predict first-year student persistence with near-perfect accuracy. Key findings include the model's strong predictive performance balanced against significant challenges such as interpretability limitations. The research addressed data preprocessing through advanced techniques like upsampling and iterative imputation, while implementing regularization methods such as dropout and early stopping to mitigate overfitting risks. While the model achieved perfect performance on this dataset, and should be helpful to the HYPE program@armstrong2017, its effectiveness in broader scenarios remains unproven due to potential variations in student populations, institutional contexts, and data quality. 
+
+Critical insights emerge from the analysis: while AI can effectively forecast student success, educational stakeholders may require transparent models that enable clear, actionable decision-making. Future work should focus on expanding dataset diversity and advancing explainable AI techniques to bridge the gap between sophisticated predictive capabilities and meaningful educational interventions.
