@@ -69,7 +69,7 @@ class Model:
             self.__train_line(line)
             self.__save()
             float_line = student_labelled.to_float_line()
-            self.__write(float_line)
+            self.__write_line(float_line)
         except Exception as e:
             raise RuntimeError(f"An error occurred during train: {str(e)}") 
 
@@ -81,9 +81,10 @@ class Model:
             raise RuntimeError(f"Failed to process the file at {new_csv_path}: {str(e)}")
         try:
             history = self.model.fit(dataset, epochs=1, verbose=0)
+            self.__save()
+            self.__write_csv(csv_path)
         except Exception as e:
             raise RuntimeError(f"Failed to train the model: {str(e)}")
-        
         return history.history['accuracy'], history.history['loss']
 
     def __process_csv(self, file_paths, n_readers=5, n_read_threads=tf.data.AUTOTUNE,
@@ -141,9 +142,13 @@ class Model:
     def __save(self):
         self.model.save(self.model_path)
 
-    def __write(self, float_line):
+    def __write_line(self, float_line):
         df_line = pd.DataFrame([float_line])
         df_line.to_csv(self.data_path, mode='a', index=False, header=False)
+
+    def __write_csv(self, new_csv_path):
+        df_csv = pd.read_csv(new_csv_path)
+        df_csv.to_csv(self.data_path, mode='a', index=False, header=False)
 
     def __validate_path(self, model_path):
         if model_path is None or model_path not in [MODEL_DEV, MODEL_PRO]:
@@ -279,19 +284,19 @@ class Student:
 
     
 if __name__ == "__main__": 
-    student = Student(2.125,2.136364,1.0,2.0,6.0,2.0,1.0,1.0,2.0,1.0,2.0,73.0,18.0,7.0,1.0)
-    model = Model()
-    model.train_one(student)
+    # student = Student(2.125,2.136364,1.0,2.0,6.0,2.0,1.0,1.0,2.0,1.0,2.0,73.0,18.0,7.0,1.0)
+    # model = Model()
+    # model.train_one(student)
 
     # student = Student(0.6,1.4,2,8,3,2,1,2,3,1,8,2.5,4,8)
     # model = Model()
     # prediction = model.predict_one(student)
     # print(prediction)
 
-    # csv_file = './data/data_uploaded.csv'
-    # model = Model()
-    # acc, loss = model.train_batch(csv_file)
-    # print(acc, loss)
+    csv_file = './data/data_uploaded.csv'
+    model = Model()
+    acc, loss = model.train_batch(csv_file)
+    print(acc, loss)
 
     
 
