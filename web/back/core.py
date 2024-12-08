@@ -2,6 +2,7 @@ import os
 import json
 import numpy as np
 import tensorflow as tf 
+import pandas as pd
 from tensorflow.keras.models import load_model
 
 # Switch for production and develop mode
@@ -67,7 +68,8 @@ class Model:
             line = student_labelled.to_line()
             self.__train_line(line)
             self.__save()
-            print('One instance is trained successfully.')
+            float_line = student_labelled.to_float_line()
+            self.__write(float_line)
         except Exception as e:
             raise RuntimeError(f"An error occurred during train: {str(e)}") 
 
@@ -139,6 +141,10 @@ class Model:
     def __save(self):
         self.model.save(self.model_path)
 
+    def __write(self, float_line):
+        df_line = pd.DataFrame([float_line])
+        df_line.to_csv(self.data_path, mode='a', index=False, header=False)
+
     def __validate_path(self, model_path):
         if model_path is None or model_path not in [MODEL_DEV, MODEL_PRO]:
             default_path = get_default_model()
@@ -202,6 +208,28 @@ class Student:
             self.first_year_persistence
         ]))
 
+    def to_float_line(self):
+        """
+        Converts the student object to a CSV string for input pipelines.
+        """
+        return [
+            self.first_term_gpa,
+            self.second_term_gpa,
+            self.first_language,
+            self.funding,
+            self.school,
+            self.fast_track,
+            self.coop,
+            self.residency,
+            self.gender,
+            self.previous_education,
+            self.age_group,
+            self.high_school_average_mark,
+            self.math_score,
+            self.english_grade,
+            self.first_year_persistence
+        ]
+
     def validate(self):
         """
         Validates the student attributes against the provided mappings and numeric ranges.
@@ -251,14 +279,14 @@ class Student:
 
     
 if __name__ == "__main__": 
-    # student = Student(2.125,2.136364,1.0,2.0,6.0,2.0,1.0,1.0,2.0,1.0,2.0,73.0,18.0,7.0,1.0)
-    # model = Model()
-    # model.train_one(student)
-
-    student = Student(0.6,1.4,2,8,3,2,1,2,3,1,8,2.5,4,8)
+    student = Student(2.125,2.136364,1.0,2.0,6.0,2.0,1.0,1.0,2.0,1.0,2.0,73.0,18.0,7.0,1.0)
     model = Model()
-    prediction = model.predict_one(student)
-    print(prediction)
+    model.train_one(student)
+
+    # student = Student(0.6,1.4,2,8,3,2,1,2,3,1,8,2.5,4,8)
+    # model = Model()
+    # prediction = model.predict_one(student)
+    # print(prediction)
 
     # csv_file = './data/data_uploaded.csv'
     # model = Model()
