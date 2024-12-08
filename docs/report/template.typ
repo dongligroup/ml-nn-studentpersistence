@@ -42,6 +42,8 @@
   // works.
   bib: none,
 
+  appendix: none,
+
   // Paper's content
   body
 ) = {
@@ -171,5 +173,17 @@
     bibliography(bib, title: [References], style: "ieee")
   }
 
-  
+  // Display appendix.
+  if appendix != none {
+    counter(heading).update(0)
+    counter("appendices").update(1)
+    set heading(
+      numbering: (..nums) => {
+        let vals = nums.pos()
+        let value = "ABCDEFGHIJ".at(vals.at(0) - 1)
+        return value + "." + nums.pos().slice(1).map(str).join(".")
+      }
+    )
+    appendix
+  }
 }

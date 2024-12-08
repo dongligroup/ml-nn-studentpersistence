@@ -22,6 +22,7 @@
     abstract: [Accurately forecasting student success is crucial for improving retention and outcomes. This study predicts first-year persistence using Artificial Intelligence (AI) and Neural Networks (NN). A real-world dataset is processed to address challenges like missing values and class imbalance. The NN model, optimized with advanced techniques, outperforms traditional methods in predicting persistence. While the results show promise, the study also highlights challenges in model interpretability and generalization, suggesting areas for future exploration in AI-driven educational interventions.],
     keywords: ("Artificial Intelligence", "Neural Network", "Student Success", "Predictive Analytics"),
     bib: "main.bib",
+    appendix: include "appendix.typ"
 )
 
 = Introduction
@@ -179,7 +180,7 @@ This outcome reflects the model's excellent performance on unseen test data. In 
 
 == Predictive Website
 
-A full-stack website was built to utilize the model, featuring a Node.js frontend and Flask backend. The backend includes a simple `.csv` file as a database layer, used to append data during _online training_. While the website currently only supports prediction, the backend also developed to support two additional functionalities including train_one and train_batch.
+A full-stack website was built to utilize the model, featuring a Node.js frontend and Flask backend. The backend includes a simple `.csv` file as a database layer, used to append data during _online training_. While the website currently only supports prediction, the backend also developed to support two additional functionalities including train_one and train_batch. More information can be found in Appendix.
 
 #figure(
   grid(
